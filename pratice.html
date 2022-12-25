@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <title>route</title>
+    <style>
+        body{
+            margin: 0;
+            padding:0;
+        }
+        #map{
+            width:100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    
+</body>
+</html>
+ 
+<!-- leaflet js -->
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<script>
+    
+      var map=L.map('map').setView([28.249184, 83.984460],10);
+    var titleUrl='http://{s}.tile.osm.org/{z}/{x}/{y}.png';
+    var attribution ='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors';
+     var tiles = L.tileLayer(titleUrl, {attribution });
+tiles.addTo(map);
+
+if(!navigator.geolocation){
+console.log("dont support geolocation")
+}
+else{
+    setInterval(() => {
+        navigator.geolocation.getCurrentPosition(getPosition) 
+    }, 1000);
+    
+}
+var marker, circle;
+function getPosition(position){
+// console.log(position)
+var lat= position.coords.latitude
+var long = position.coords.longitude
+var accuracy = position.coords.accuracy
+if(marker){
+    map.removeLayer(marker)
+}
+if(circle){
+    map.removeLayer(circle)
+}
+ marker= L.marker([lat,long])
+circle=L.circle([lat,long],{radius:accuracy})
+var featureGroup= L.featureGroup([marker,circle]).addTo(map)
+map.fitBounds(featureGroup.getBounds())
+
+console.log("your coordinate is: lat:" +lat+ "long:" +long+ " Accuracy:"+accuracy)
+
+
+    // var marker= L.marker([28.249184, 83.984460]).addTo(map);
+
+//     L.Routing.control({
+//   waypoints: [
+//     L.latLng(57.74, 11.94),
+//     L.latLng(57.6792, 11.949)
+//   ]
+// }).addTo(map);
+map.on('click', function(e)
+{console.log(e)
+    var secondmarker =L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+    L.Routing.control({
+   waypoints: [
+     L.latLng(lat,long),
+     L.latLng(e.latlng.lat, e.latlng.lng)
+   ]
+ }).addTo(map);
+})
+}
+
+
+</script>
